@@ -4,7 +4,7 @@ Run your project in the cloud with Claude Code: nothing to install on your lapto
 
 ## One-time setup (about 10 minutes)
 
-1. **Make your own copy of this repo.** Click **Use this template**, then **Create a new repository** under your own GitHub account. Public is simplest.
+1. **Make your own copy of this repo.** Visit the main page of the repo at https://github.com/ChristopherThorpe/cs85-astro-template, click the green **Use this template** button in the upper right, then **Create a new repository** under your own GitHub account. Public is simplest.
 2. **Let Claude use it.** Install the Claude GitHub App on your account at https://github.com/apps/claude/installations/new and give it access to your new repo.
 3. **Connect GitHub to Claude.** Go to https://claude.ai/code, sign in with your Harvard Claude account, and follow the prompt to connect GitHub.
 4. **Create the class environment.** At claude.ai/code, click the cloud icon above the message box, then **Add cloud environment**, and fill it in:
