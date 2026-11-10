@@ -27,6 +27,8 @@ for path in scripts:
     run_dir = os.path.join(HERE, 'test_runs', sid)
     shutil.rmtree(run_dir, ignore_errors=True); os.makedirs(run_dir)
     shutil.copy(path, run_dir)
+    for helper in glob.glob(os.path.join(HERE, 'starters', '_*.py')):  # shared helpers, e.g. _ensure.py
+        shutil.copy(helper, run_dir)
     print(f'RUN  {name} ...', flush=True)
     t0 = time.time()
     try:
