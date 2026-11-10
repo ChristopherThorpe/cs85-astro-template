@@ -22,6 +22,8 @@ At claude.ai/code, pick your repo and the **CS85 Astronomy** environment, then a
 
 Your first session takes a few extra minutes while packages install. After that, sessions start quickly.
 
+**Which packages get installed where:** the environment's setup script installs the core packages (`requirements-core.txt`). The setup script is stopped after about 5 minutes, so the solar (projects 13, 14, 16) and DASCH (project 03) packages in `requirements-extras.txt` are installed by this repo's SessionStart hook (`.claude/hooks/session-start.sh`) at the start of your first session instead. On your own computer, `pip install -r requirements.txt` installs everything.
+
 **Seeing your plots:** Claude pushes its work to a branch. On GitHub, switch to that branch and open the `plots/` folder. GitHub shows the images right in the browser.
 
 ## If something goes wrong
