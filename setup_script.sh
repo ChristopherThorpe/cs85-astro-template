@@ -41,12 +41,24 @@ PEM
 update-ca-certificates
 grep -q "MIIDlDCCAnygAwIBAgIKMfXkYgxsWO3W2D" /etc/ssl/certs/ca-certificates.crt && echo "emSign root installed" || { echo "ERROR: emSign root not in system bundle"; exit 1; }
 
-# 2. Core Python packages.
-# --use-pep517 builds source-only packages with a fresh setuptools;
-# without it, the system's Debian setuptools fails with "AttributeError: install_layout".
-pip install --break-system-packages -q --ignore-installed --use-pep517 --root-user-action=ignore \
-  pip setuptools wheel
-pip install --break-system-packages -q --use-pep517 --root-user-action=ignore \
-  alerce astropy astroquery gwpy lightkurve matplotlib numpy pandas pyvo requests \
-  scikit-learn scipy skyfield sparclclient plotly streamlit \
-  || echo "WARNING: CS85 setup pip install failed"
+# 2. Core Python packages, installed with uv: a fast replacement for pip that downloads and
+# installs packages in parallel, so this finishes well inside the time limit.
+# If uv isn't already here, we install it with pip. UV_NATIVE_TLS makes uv use the system
+# certificate list, which trusts the cloud proxy.
+CORE_PACKAGES="alerce astropy astroquery gwpy lightkurve matplotlib numpy pandas pyvo requests
+  scikit-learn scipy skyfield sparclclient plotly streamlit"
+export UV_NATIVE_TLS=1
+export PATH="$PATH:/root/.local/bin"
+command -v uv >/dev/null || pip install --break-system-packages -q --root-user-action=ignore uv
+if command -v uv >/dev/null \
+   && uv pip install --system --break-system-packages -q $CORE_PACKAGES; then
+  echo "CS85 core packages installed with uv"
+else
+  # Fallback: plain pip (much slower). --use-pep517 builds source-only packages with a fresh
+  # setuptools; without it, the system's Debian setuptools fails with "AttributeError: install_layout".
+  echo "uv didn't work; falling back to pip"
+  pip install --break-system-packages -q --ignore-installed --use-pep517 --root-user-action=ignore \
+    pip setuptools wheel
+  pip install --break-system-packages -q --use-pep517 --root-user-action=ignore $CORE_PACKAGES \
+    || echo "WARNING: CS85 setup pip install failed"
+fi

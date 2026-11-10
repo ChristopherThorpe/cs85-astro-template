@@ -1,27 +1,9 @@
 # pip install drms pandas matplotlib
-# --- Setup: make sure the packages this script needs are installed. ----------------------
-# Cloud sessions install them in the background when they start. This waits for that to
-# finish, then installs anything still missing. (On your own computer it just installs them.)
-import importlib, importlib.util, os, subprocess, sys, tempfile
-NEEDED = {"drms": "drms"}   # module name: pip package name
 try:
-    import fcntl   # file locks, to wait for the background install (not available on Windows)
-    lock = open(os.path.join(tempfile.gettempdir(), "cs85-extras.lock"), "a")
-    try:
-        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except BlockingIOError:
-        print("Waiting for the background install of the solar and DASCH packages...", flush=True)
-        fcntl.flock(lock, fcntl.LOCK_EX)
+    from _ensure import ensure_packages   # class repo: waits for the background install (starters/_ensure.py)
 except ImportError:
-    lock = None
-importlib.invalidate_caches()
-missing = sorted({pkg for mod, pkg in NEEDED.items() if importlib.util.find_spec(mod) is None})
-if missing:
-    print("Installing", ", ".join(missing), "(about a minute)...", flush=True)
-    subprocess.run([sys.executable, "-m", "pip", "install", *missing], check=True)
-if lock:
-    lock.close()   # done: let other scripts (or the background install) go ahead
-# ------------------------------------------------------------------------------------------
+    ensure_packages = lambda needed: None  # running this file on its own: use the pip line above
+ensure_packages({"drms": "drms"})
 import drms, pandas as pd, matplotlib.pyplot as plt
 c = drms.Client()   # keyword queries are anonymous; only image/FITS exports need a JSOC-registered email
 # HARP 7115 = NOAA AR 12673 (X9.3 flare 2017-09-06). One record per hour for 15 days, good-quality records only
