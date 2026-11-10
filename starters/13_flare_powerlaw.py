@@ -1,4 +1,28 @@
 # pip install "sunpy[net]" matplotlib numpy
+# --- Setup: make sure the packages this script needs are installed. ----------------------
+# Cloud sessions install them in the background when they start. This waits for that to
+# finish, then installs anything still missing. (On your own computer it just installs them.)
+import importlib, importlib.util, os, subprocess, sys, tempfile
+NEEDED = {"sunpy": "sunpy[net]", "drms": "sunpy[net]", "zeep": "sunpy[net]"}   # module name: pip package name
+                                     # (sunpy's search tools also need drms and zeep)
+try:
+    import fcntl   # file locks, to wait for the background install (not available on Windows)
+    lock = open(os.path.join(tempfile.gettempdir(), "cs85-extras.lock"), "a")
+    try:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        print("Waiting for the background install of the solar and DASCH packages...", flush=True)
+        fcntl.flock(lock, fcntl.LOCK_EX)
+except ImportError:
+    lock = None
+importlib.invalidate_caches()
+missing = sorted({pkg for mod, pkg in NEEDED.items() if importlib.util.find_spec(mod) is None})
+if missing:
+    print("Installing", ", ".join(missing), "(about a minute)...", flush=True)
+    subprocess.run([sys.executable, "-m", "pip", "install", *missing], check=True)
+if lock:
+    lock.close()   # done: let other scripts (or the background install) go ahead
+# ------------------------------------------------------------------------------------------
 import numpy as np, matplotlib.pyplot as plt
 from sunpy.net import Fido, attrs as a
 # Every GOES X-ray flare in the Heliophysics Events Knowledgebase (HEK) for 2024, near solar max (~1-3 min)
