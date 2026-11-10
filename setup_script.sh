@@ -10,6 +10,8 @@
 # mastresolver.stsci.edu (project 25, star-name lookups) use certificates that chain to it.
 # It's in Mozilla's trusted list (shipped in Python's certifi package) but not yet in this
 # container's older system list, so those downloads failed with "CERTIFICATE_VERIFY_FAILED".
+# The repo's SessionStart hook then points Python (REQUESTS_CA_BUNDLE, SSL_CERT_FILE) at this
+# system list, because the cloud proxy's own list may not include emSign. Keep this step.
 # SHA-256 fingerprint: 40:F6:AF:03:46:A9:9A:A1:CD:1D:55:5A:4E:9C:CE:62:C7:F9:63:46:03:EE:40:66:15:83:3D:C8:C8:D0:03:67
 cat > /usr/local/share/ca-certificates/emSign_Root_CA_-_G1.crt <<'PEM'
 -----BEGIN CERTIFICATE-----
