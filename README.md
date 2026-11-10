@@ -11,6 +11,7 @@ Run your project in the cloud with Claude Code: nothing to install on your lapto
    - **Name:** `CS85 Astronomy`
    - **Network access:** **Full**. The projects pull data from about 30 different science archives, and the default **Limited** setting only reaches package installers and GitHub.
    - **Setup script:** paste the contents of `setup_script.sh`.
+   - In the bottom bar, underneath the prompt input, next to the book icon, click "Repo" or whatever repository is there and select your new astronomy repo copy.
    - Click **Create**.
 
 ## Each work session
