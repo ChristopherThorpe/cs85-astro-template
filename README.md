@@ -30,4 +30,5 @@ Your first session takes a few extra minutes while packages install. After that,
 
 - **"Claude Code isn't available on your account"** or **no GitHub sign-in button:** tell your instructor. That's an account setting, not something you did wrong.
 - **A download fails with 403 or "proxy":** a site is missing from the environment's allowed domains. Claude will tell you which one; add it in the environment settings.
+- **Project 30 (Hubble diagram) fails with "HTTP Error 403: Forbidden":** the supernova data lives in a separate public GitHub repo, `PantheonPlusSH0ES/DataRelease`, and each Claude session can only read the GitHub repos added to it. Adding the domain won't help here. Instead, ask Claude to allow its `add_repo` tool (the permission rule is `mcp__claude-code-remote__add_repo`) and then add `PantheonPlusSH0ES/DataRelease` to the session (read access is enough). Then ask Claude to run the starter again.
 - **Anything else:** paste the error into the chat and ask Claude to fix it.
