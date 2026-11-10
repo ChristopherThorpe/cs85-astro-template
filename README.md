@@ -30,4 +30,5 @@ Your first session takes a few extra minutes while packages install. After that,
 
 - **"Claude Code isn't available on your account"** or **no GitHub sign-in button:** tell your instructor. That's an account setting, not something you did wrong.
 - **A download fails with 403 or "proxy":** a site is missing from the environment's allowed domains. Claude will tell you which one; add it in the environment settings.
+- **"CERTIFICATE_VERIFY_FAILED" when downloading:** Python couldn't confirm the site's security certificate. The site isn't blocked; the trusted-certificate list Python was given is missing the authority that signed it. This happens with gwosc.org (projects 18 and 19) if you download with `requests`, because its certificate comes from an authority (emSign) that only the computer's built-in list includes. Download with Python's standard library instead, which checks both lists, as `starters/19_hear_a_merger.py` does: `urllib.request.urlopen(url, context=ssl.create_default_context())`. Never turn certificate checking off (`verify=False`).
 - **Anything else:** paste the error into the chat and ask Claude to fix it.
