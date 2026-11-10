@@ -14,6 +14,7 @@ Run your project in the cloud with Claude Code: nothing to install on your lapto
    - Click **Create**.
 
 ## Each work session
+Before beginning, take a look at the **30 starter projects** in https://github.com/ChristopherThorpe/cs85-astro-template/blob/main/PROJECTS.md
 
 At claude.ai/code, pick your repo and the **CS85 Astronomy** environment, then ask something like:
 
