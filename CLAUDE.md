@@ -36,6 +36,10 @@ If a download fails with `CERTIFICATE_VERIFY_FAILED` or `SSLCertVerificationErro
 5. Never fix it by turning off certificate verification (`verify=False`, `PYTHONHTTPSVERIFY=0`, an unverified SSL context) or by downloading a certificate from anywhere other than `certs/` in this repo.
 6. If a site not listed above fails this way, tell the student which site it was, so they can let the instructor know.
 
+## Project 30: GitHub data repo
+
+Starter 30 downloads the Pantheon+SH0ES data file from the public GitHub repo `PantheonPlusSH0ES/DataRelease`. Each cloud session can only read GitHub repos that have been added to it, so the download fails with "HTTP Error 403: Forbidden" until that repo is added. This is not a domain problem, so don't tell the student to add a domain. Use the `add_repo` tool (read access) to add `PantheonPlusSH0ES/DataRelease`. If the session's permissions block `add_repo`, tell the student and ask whether to add the permission rule `mcp__claude-code-remote__add_repo`, then try again. Don't download the file from mirrors or other routes.
+
 ## Free sign-ups
 
 Project 02 needs a free AAVSO API token in the `AAVSO_TOKEN` environment variable. If the student wants it, they should add it to their own personal cloud environment, never to a shared one, and never commit it.

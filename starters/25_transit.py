@@ -3,7 +3,10 @@ import numpy as np, matplotlib.pyplot as plt
 import lightkurve as lk
 
 # TESS 2-minute light curve of WASP-18 (hot-Jupiter host), Sector 2, from MAST (a few MB)
-lc = lk.search_lightcurve('WASP-18', mission='TESS', author='SPOC', exptime=120, sector=2).download().remove_nans()
+# We use WASP-18's TESS Input Catalog number (TIC 100100827) instead of its name. Searching by
+# name needs MAST's name-lookup service, whose certificate Python sometimes rejects in the
+# cloud environment (CERTIFICATE_VERIFY_FAILED). The TIC number skips that step.
+lc = lk.search_lightcurve('TIC 100100827', mission='TESS', author='SPOC', exptime=120, sector=2).download().remove_nans()
 # Pass 1: remove slow trends (~30 h window), then Box Least Squares search over 0.5-5 day periods
 pg = lc.flatten(window_length=901).to_periodogram(method='bls', period=np.linspace(0.5, 5, 20000),
                                                   duration=[0.05, 0.08, 0.1, 0.15])
