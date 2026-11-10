@@ -1,6 +1,6 @@
 # CS85 astronomy teaser projects
 
-Run your project in the cloud with Claude Code: nothing to install on your laptop. Your project number from the email matches a file in `starters/`.
+Run your project in the cloud with Claude Code: nothing to install on your laptop. **[PROJECTS.md](PROJECTS.md) describes all 30 projects**, and each project's number matches its starter file in `starters/`.
 
 ## One-time setup (about 10 minutes)
 

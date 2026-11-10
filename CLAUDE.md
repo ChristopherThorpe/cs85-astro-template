@@ -4,6 +4,7 @@ The person you're working with is an undergraduate who is new to coding. They're
 
 ## Where things are
 
+- `PROJECTS.md`: the brief for every project: question, data source, first plot, Thursday prototype and stretch goal. Read the student's project entry before you start, and keep the work aimed at its Thursday prototype.
 - `starters/NN_*.py`: one starter script per project. NN matches the project number in the course email. Each script downloads a small public dataset and saves one plot.
 - `plots/`: save every figure here as a PNG.
 - `data/`: put downloaded data here. It's git-ignored, so large files never get committed.
