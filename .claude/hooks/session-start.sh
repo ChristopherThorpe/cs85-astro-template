@@ -1,9 +1,10 @@
 #!/bin/bash
 # Runs at the start of each cloud session. It (1) sets up the certificate list so projects
-# 18, 19 and 25 can download, and (2) starts installing the solar (projects 13, 14, 16) and
-# DASCH (project 03) packages in the background. Those aren't in the environment's setup
-# script because that script is stopped after about 5 minutes. The hook itself takes a few
-# seconds at most.
+# 18, 19 and 25 can download, (2) installs the core packages with uv if the environment's
+# setup script didn't, and (3) starts installing the solar (projects 13, 14, 16) and DASCH
+# (project 03) packages in the background. Those aren't in the environment's setup script
+# because that script is stopped after about 5 minutes. The hook usually takes a few
+# seconds; a minute or two when it has to install the core packages.
 set -euo pipefail
 
 # Only run in Claude Code cloud sessions, not on a student's own computer.
@@ -66,9 +67,34 @@ else
   echo "Note: kept the default certificate list; projects 18, 19, 25 may fail with CERTIFICATE_VERIFY_FAILED." >&2
 fi
 
+# Python packages. We use uv, a fast replacement for pip: one uv command downloads and
+# installs many packages in parallel, safely. (Several pip commands at once would not be
+# safe: they'd write the same shared packages, like numpy, at the same time.)
+# Find uv, or install it with pip. If that fails too, fall back to plain pip.
+export UV_NATIVE_TLS=1   # use the system certificate list, which trusts the cloud proxy
+uv_bin="$(command -v uv || true)"
+if [ -z "$uv_bin" ] && [ -x /root/.local/bin/uv ]; then uv_bin=/root/.local/bin/uv; fi
+if [ -z "$uv_bin" ]; then
+  python3 -m pip install --break-system-packages -q --root-user-action=ignore uv >/dev/null 2>&1 \
+    && uv_bin="$(command -v uv || true)"
+fi
+if [ -n "$uv_bin" ]; then
+  install="$uv_bin pip install --system --break-system-packages -q"
+else
+  install="python3 -m pip install --break-system-packages -q --use-pep517 --root-user-action=ignore"
+fi
+
+# Core packages (requirements-core.txt): the environment's setup script should already have
+# installed these, and then this step takes about a second. If the setup script didn't (it
+# isn't set, or it failed), this installs them now, before the session starts, so every
+# starter works right away. With uv that takes a minute or two.
+echo "Checking the core Python packages..." >&2
+$install -r requirements-core.txt >&2 \
+  || echo "Note: installing the core packages failed; starters may fail with ModuleNotFoundError." >&2
+
 # Solar and DASCH packages: install them in the background, so the session starts right away.
 # The saved environment doesn't keep what this hook installs, so this runs in most sessions
-# and takes a couple of minutes. Starters 03, 13, 14 and 16 wait for it (they take the same
+# and takes a minute or two. Starters 03, 13, 14 and 16 wait for it (they take the same
 # lock file) or install the package themselves if it's still missing.
 # The hash file lives next to the installed packages, so it disappears if they do.
 hashes="$(python3 -I -c 'import sysconfig; print(sysconfig.get_path("purelib"))')/.cs85-session-start.sha256"
@@ -79,8 +105,7 @@ if ! sha256sum --check --status "$hashes" 2>/dev/null; then
   echo "Installing solar and DASCH packages in the background (log: $log)." >&2
   # setsid + nohup: keep running after this hook exits. flock -n: skip if one is already running.
   setsid nohup flock -n "$lock" bash -c '
-    python3 -m pip install --break-system-packages -q --use-pep517 --root-user-action=ignore \
-      -r requirements-extras.txt \
+    $2 -r requirements-extras.txt \
     && sha256sum .claude/hooks/session-start.sh requirements-extras.txt > "$1" \
-    && echo "cs85: solar and DASCH packages installed."' _ "$hashes" > "$log" 2>&1 < /dev/null &
+    && echo "cs85: solar and DASCH packages installed."' _ "$hashes" "$install" > "$log" 2>&1 < /dev/null &
 fi
