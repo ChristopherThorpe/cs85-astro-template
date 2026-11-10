@@ -3,7 +3,9 @@ import matplotlib.pyplot as plt
 from alerce.core import Alerce
 
 client = Alerce()  # no account or token needed
-oid = "45121627560013211"  # Rubin object ID from ALeRCE's docs; find others at https://lsst.alerce.online
+oid = "313721466436714578"  # a Rubin object with 17 detections (Nov 2026); find others at https://lsst.alerce.online
+# ALeRCE re-numbered its Rubin objects in 2026, so older IDs (like 45121627560013211) now give "not found".
+# To list current objects in Python: client.query_objects(survey="lsst", format="pandas")
 det = client.query_detections(oid, survey="lsst", format="pandas")
 print(det.columns.tolist())  # every column ALeRCE returns for each Rubin detection
 
