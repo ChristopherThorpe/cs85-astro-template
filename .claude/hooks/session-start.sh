@@ -1,8 +1,9 @@
 #!/bin/bash
-# Installs the solar (projects 13, 14, 16) and DASCH (project 03) packages at the start of
-# each cloud session. They aren't in the environment's setup script because that script is
-# stopped after about 5 minutes. Only installs when something is missing or changed, so
-# after the first time this finishes in well under a second.
+# Runs at the start of each cloud session. It (1) sets up the certificate list so projects
+# 18, 19 and 25 can download, and (2) starts installing the solar (projects 13, 14, 16) and
+# DASCH (project 03) packages in the background. Those aren't in the environment's setup
+# script because that script is stopped after about 5 minutes. The hook itself takes a few
+# seconds at most.
 set -euo pipefail
 
 # Only run in Claude Code cloud sessions, not on a student's own computer.
@@ -65,12 +66,21 @@ else
   echo "Note: kept the default certificate list; projects 18, 19, 25 may fail with CERTIFICATE_VERIFY_FAILED." >&2
 fi
 
+# Solar and DASCH packages: install them in the background, so the session starts right away.
+# The saved environment doesn't keep what this hook installs, so this runs in most sessions
+# and takes a couple of minutes. Starters 03, 13, 14 and 16 wait for it (they take the same
+# lock file) or install the package themselves if it's still missing.
 # The hash file lives next to the installed packages, so it disappears if they do.
 hashes="$(python3 -I -c 'import sysconfig; print(sysconfig.get_path("purelib"))')/.cs85-session-start.sha256"
+lock="${TMPDIR:-/tmp}/cs85-extras.lock"
+log="${TMPDIR:-/tmp}/cs85-extras-install.log"
 if ! sha256sum --check --status "$hashes" 2>/dev/null; then
   rm -f "$hashes"
-  echo "Installing solar and DASCH packages (requirements-extras.txt)..." >&2
-  python3 -m pip install --break-system-packages -q --use-pep517 --root-user-action=ignore \
-    -r requirements-extras.txt >&2
-  sha256sum .claude/hooks/session-start.sh requirements-extras.txt > "$hashes"
+  echo "Installing solar and DASCH packages in the background (log: $log)." >&2
+  # setsid + nohup: keep running after this hook exits. flock -n: skip if one is already running.
+  setsid nohup flock -n "$lock" bash -c '
+    python3 -m pip install --break-system-packages -q --use-pep517 --root-user-action=ignore \
+      -r requirements-extras.txt \
+    && sha256sum .claude/hooks/session-start.sh requirements-extras.txt > "$1" \
+    && echo "cs85: solar and DASCH packages installed."' _ "$hashes" > "$log" 2>&1 < /dev/null &
 fi
