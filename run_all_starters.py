@@ -1,7 +1,7 @@
 """Run every astronomy starter script and report which ones work.
 
 Usage (from the repo root; in a cloud session, just ask Claude to run it):
-    pip install -r requirements.txt        # not needed in the class cloud environment
+    pip install -r requirements.txt        # not needed in the class cloud environment (setup script + SessionStart hook)
     python3 run_all_starters.py            # all 30 (~10-20 min; a few downloads are ~100 MB)
     python3 run_all_starters.py 07 15      # just some, by project number
 
